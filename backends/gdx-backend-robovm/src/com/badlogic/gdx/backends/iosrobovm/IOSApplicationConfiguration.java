@@ -16,6 +16,11 @@
 
 package com.badlogic.gdx.backends.iosrobovm;
 
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.glutils.HdpiMode;
+import com.badlogic.gdx.graphics.glutils.HdpiUtils;
+import com.badlogic.gdx.utils.ObjectMap;
+
 import org.robovm.apple.glkit.GLKViewDrawableColorFormat;
 import org.robovm.apple.glkit.GLKViewDrawableDepthFormat;
 import org.robovm.apple.glkit.GLKViewDrawableMultisample;
@@ -30,8 +35,8 @@ public class IOSApplicationConfiguration {
 	/** whether or not landscape orientation is supported. */
 	public boolean orientationLandscape = true;
 
-	/** the color format, RGB565 is the default **/
-	public GLKViewDrawableColorFormat colorFormat = GLKViewDrawableColorFormat.RGB565;
+	/** the color format, RGBA8888 is the default **/
+	public GLKViewDrawableColorFormat colorFormat = GLKViewDrawableColorFormat.RGBA8888;
 
 	/** the depth buffer format, Format16 is default **/
 	public GLKViewDrawableDepthFormat depthFormat = GLKViewDrawableDepthFormat._16;
@@ -45,39 +50,6 @@ public class IOSApplicationConfiguration {
 	/** number of frames per second, 60 is default **/
 	public int preferredFramesPerSecond = 60;
 
-	/** Scale factor to use on large screens with retina display, i.e. iPad 3+ (has no effect on non-retina screens).
-	 * <ul>
-	 * <li>1.0 = no scaling (everything is in pixels)
-	 * <li>0.5 = LibGDX will behave as you would only have half the pixels. I.e. instead of 2048x1536 you will work in 1024x768.
-	 * This looks pixel perfect and will save you the trouble to create bigger graphics for the retina display.
-	 * <li>any other value: scales the screens according to your scale factor. A scale factor oof 0.75, 0.8, 1.2, 1.5 etc. works
-	 * very well without any artifacts!
-	 * </ul> */
-	public float displayScaleLargeScreenIfRetina = 1.0f;
-	/** Scale factor to use on small screens with retina display, i.e. iPhone 4+, iPod 4+ (has no effect on non-retina screens).
-	 * <ul>
-	 * <li>1.0 = no scaling (everything is in pixels)
-	 * <li>0.5 = LibGDX will behave as you would only have half the pixels. I.e. instead of 960x640 you will work in 480x320. This
-	 * looks pixel perfect and will save you the trouble to create bigger graphics for the retina display.
-	 * <li>any other value: scales the screens according to your scale factor. A scale factor of 0.75, 0.8, 1.2, 1.5 etc. works
-	 * very well without any artifacts!
-	 * </ul> */
-	public float displayScaleSmallScreenIfRetina = 1.0f;
-	/** Scale factor to use on large screens without retina display, i.e. iPad 1+2 (has no effect on retina screens).
-	 * <ul>
-	 * <li>1.0 = no scaling (everything is in pixels)
-	 * <li>any other value: scales the screens according to your scale factor. A scale factor of 0.75, 0.8, 1.2, 1.5 etc. works
-	 * very well without any artifacts!
-	 * </ul> */
-	public float displayScaleLargeScreenIfNonRetina = 1.0f;
-	/** Scale factor to use on small screens without retina display, i.e. iPhone 1-3, iPod 1-3 (has no effect on retina screens).
-	 * <ul>
-	 * <li>1.0 = no scaling (everything is in pixels)
-	 * <li>any other value: scales the screens according to your scale factor. A scale factor of 0.75, 0.8, 1.2, 1.5 etc. works
-	 * very well without any artifacts!
-	 * </ul> */
-	public float displayScaleSmallScreenIfNonRetina = 1.0f;
-
 	/** whether to use the accelerometer, default true **/
 	public boolean useAccelerometer = true;
 	/** the update interval to poll the accelerometer with, in seconds **/
@@ -89,7 +61,7 @@ public class IOSApplicationConfiguration {
 	public boolean useCompass = true;
 
 	/** whether or not to allow background music from iPod **/
-	public boolean allowIpod = false;
+	public boolean allowIpod = true;
 
 	/** whether or not the onScreenKeyboard should be closed on return key **/
 	public boolean keyboardCloseOnReturn = true;
@@ -98,6 +70,9 @@ public class IOSApplicationConfiguration {
 	 *  When GL ES 3 is enabled, {@link com.badlogic.gdx.Gdx#gl30} can be used to access it's functionality.
 	 * @deprecated this option is currently experimental and not yet fully supported, expect issues. */
 	@Deprecated public boolean useGL30 = false;
+
+	/** whether the status bar should be visible or not **/
+	public boolean statusBarVisible = false;
 
 	/** whether the home indicator should be hidden or not **/
 	public boolean hideHomeIndicator = true;
@@ -115,4 +90,25 @@ public class IOSApplicationConfiguration {
 	/** whether to use audio or not. Default is <code>true</code> **/
 	public boolean useAudio = true;
 
+	/**
+	 * This setting allows you to specify whether you want to work in logical or raw pixel units.
+	 * See {@link HdpiMode} for more information. Note that some OpenGL
+	 * functions like {@link GL20#glViewport(int, int, int, int)} and
+	 * {@link GL20#glScissor(int, int, int, int)} require raw pixel units. Use
+	 * {@link HdpiUtils} to help with the conversion if HdpiMode is set to
+	 * {@link HdpiMode#Logical}. Defaults to {@link HdpiMode#Logical}.
+	 */
+	public HdpiMode hdpiMode = HdpiMode.Logical;
+
+	ObjectMap<String, IOSDevice> knownDevices = IOSDevice.populateWithKnownDevices();
+
+	/**
+	 * adds device information for newer iOS devices, or overrides information for given ones
+	 * @param classifier human readable device classifier
+	 * @param machineString machine string returned by iOS
+	 * @param ppi device's pixel per inch value
+	 */
+	public void addIosDevice(String classifier, String machineString, int ppi) {
+		IOSDevice.addDeviceToMap(knownDevices, classifier, machineString, ppi);
+	}
 }
